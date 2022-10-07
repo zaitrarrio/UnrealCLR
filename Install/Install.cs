@@ -84,7 +84,7 @@ public static class Install {
 
 				var runtimeCompilation = Process.Start(new ProcessStartInfo {
 					FileName = "dotnet",
-					Arguments =  $"publish \"{ sourcePath }/Source/Managed/Runtime\" --configuration Release --framework net6.0 --output \"{ projectPath }/Plugins/UnrealCLR/Managed\"",
+					Arguments =  $"publish \"{ sourcePath }/Source/Managed/Runtime\" --configuration Debug --framework net6.0 --output \"{ projectPath }/Plugins/UnrealCLR/Managed\"",
 					CreateNoWindow = false,
 					UseShellExecute = false
 				});
@@ -98,7 +98,7 @@ public static class Install {
 
 				var frameworkCompilation = Process.Start(new ProcessStartInfo {
 					FileName = "dotnet",
-					Arguments =  $"publish \"{ sourcePath }/Source/Managed/Framework\" --configuration Release --framework net6.0 --output \"{ sourcePath }/Source/Managed/Framework/bin/Release\"",
+					Arguments =  $"publish \"{ sourcePath }/Source/Managed/Framework\" --configuration Debug --framework net6.0 --output \"{ sourcePath }/Source/Managed/Framework/bin/Debug\"",
 					CreateNoWindow = false,
 					UseShellExecute = false
 				});
@@ -107,6 +107,20 @@ public static class Install {
 
 				if (frameworkCompilation.ExitCode != 0)
 					Error("Compilation of the framework was finished with an error (Exit code: " + frameworkCompilation.ExitCode + ")!");
+
+				Console.WriteLine("Launching compilation snd installation of the framework sdk into  the plugin...");
+
+				var frameworkInstallation = Process.Start(new ProcessStartInfo {
+					FileName = "dotnet",
+					Arguments =  $"publish \"{ sourcePath }/Source/Managed/Framework\" --configuration Debug --framework net6.0 --output \"{ projectPath }/Plugins/UnrealCLR/Managed\"",
+					CreateNoWindow = false,
+					UseShellExecute = false
+				});
+
+				frameworkInstallation.WaitForExit();
+
+				if (frameworkInstallation.ExitCode != 0)
+					Error("Installation of the framework was finished with an error (Exit code: " + frameworkCompilation.ExitCode + ")!");
 
 				if (compileTests) {
 					string contentPath = Path.Combine(sourcePath, "Content");
@@ -130,7 +144,7 @@ public static class Install {
 
 					var testsCompilation = Process.Start(new ProcessStartInfo {
 						FileName = "dotnet",
-						Arguments =  $"publish \"{ sourcePath }/Source/Managed/Tests\" --configuration Release --framework net6.0 --output \"{ projectPath }/Managed/Tests\"",
+						Arguments =  $"publish \"{ sourcePath }/Source/Managed/Tests\" --configuration Debug --framework net6.0 --output \"{ projectPath }/Managed/Tests\"",
 						CreateNoWindow = false,
 						UseShellExecute = false
 					});
